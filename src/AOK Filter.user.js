@@ -77,9 +77,9 @@ async function OnUiUpdate(selector) {
 
 function createUIFilter() {
 
-  var filter = document.createElement("filter");
-  var input = document.createElement("input");
-  var filterBtn = document.createElement("Button");
+  let filter = document.createElement("filter");
+  let input = document.createElement("input");
+  let filterBtn = document.createElement("Button");
   filterBtn.textContent = "Filter";
 
   filterBtn.onclick = function () {
