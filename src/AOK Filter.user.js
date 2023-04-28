@@ -6,16 +6,27 @@
 // ==/UserScript==
 
 (async function main() {
-  let ele = await element(".portfolio-content", "suchergebnis");
-  createUIFilter();
+  await element(".portfolio-content", "suchergebnis");
+  let filter = createUIFilter();
+
+  let c = document.querySelector(".portfolio-sortierung-selector-options");
+  c.after(filter);
 
   // noinspection InfiniteLoopJS
   while (true) {
-    console.log(await elementRemoved("filter"));
-    let ele2 = await element(".portfolio-aktionen-leiste--top", "suchergebnis");
-    createUIFilter();
+    await backToLocationMain();
+
+    let c = document.querySelector(".portfolio-sortierung-selector-options");
+    c.after(filter);
   }
 })();
+
+
+async function backToLocationMain () {
+  await OnUiUpdate('portfolio-suche pagefade-enter pagefade-enter-active');
+  return location.href.includes("portal.zentrale-pruefstelle-praevention.de/portfolio/aokbayern/suchergebnis");
+}
+
 
 /**
  *
@@ -23,9 +34,9 @@
  * @param path
  * @returns {Promise<Element>}
  */
-function element(selector, path) {
-  return new Promise((resolve, reject) => {
-    let intervalId = setInterval(() =>  {
+async function element(selector, path) {
+  return new Promise(resolve => {
+    let intervalId = setInterval(() => {
       let ele = document.querySelector(selector);
       if (location.href.includes(path) && ele) {
         clearInterval(intervalId);
@@ -36,32 +47,30 @@ function element(selector, path) {
 }
 
 
-async function OnUiUpdateEnd() {
-  return new Promise((resolve, reject) => {
+/**
+ * @param {string} selector
+ */
+async function OnUiUpdate(selector) {
+  return new Promise(resolve => {
+    let target = document.querySelector(".portfolio-content");
 
-    let m = new MutationObserver((mutations, observer) => {
-      console.log(mutations);
-      m.disconnect();
-      resolve(mutations);
+    let m = new MutationObserver(mutations => {
+
+      let isPortfolioSearchMutated = mutations.filter(mutation => {
+        return mutation.type === "childList"
+            && mutation.addedNodes.length > 0
+            && [...mutation.addedNodes].filter(node => node.className === selector).length > 0;
+      }).length > 0;
+
+      if (isPortfolioSearchMutated) {
+        m.disconnect();
+        resolve();
+      }
     });
 
-    let target = document.querySelector(".portfolio-content");
     m.observe(target, {
       childList: true
     });
-  });
-}
-
-
-function elementRemoved(selector) {
-  return new Promise((resolve, reject) => {
-    let target = document.querySelector(".portfolio-content");
-
-    // let m = new MutationObserver((mutations, observer) => {
-    //   resolve(mutations);
-    // });
-
-    // m.observe(target, {characterData:true, attributes:true, childList:true});
   });
 }
 
@@ -81,11 +90,11 @@ function createUIFilter() {
     let foundMatches = [...document.querySelectorAll(".portfolio-suche-ergebnis--kurs")]
         .filter(d => {
           let lowerTitle = d.querySelector("h1").textContent
-                                           .toLowerCase();
+              .toLowerCase();
           for (const word of words) {
             let w = word.trimEnd()
-                        .trimStart()
-                        .toLowerCase();
+                .trimStart()
+                .toLowerCase();
 
             if ( lowerTitle.includes(w) ) return true;
           }
@@ -99,41 +108,5 @@ function createUIFilter() {
   filter.appendChild(input);
   filter.appendChild(filterBtn);
 
-  var c = document.querySelector(".portfolio-sortierung-selector-options");
-  c.after(filter);
+  return filter;
 }
-
-
-
-
-async function OnUiUpdate(selector) {
-  return new Promise((resolve, reject) => {
-    let target = document.querySelector(".portfolio-content");
-
-    let m = new MutationObserver((mutations, observer) => {
-
-      let isPortfolioSearchMutated = mutations.filter(mutation => {
-        return mutation.type === "childList"
-            && mutation.addedNodes.length > 0
-            && [...mutation.addedNodes].filter(node => node.className === "portfolio-suche pagefade-enter pagefade-enter-active").length > 0;
-      }).length > 0;
-
-      if (isPortfolioSearchMutated) {
-        m.disconnect();
-        resolve();
-      }
-    });
-
-    m.observe(target, {
-      childList: true
-    });
-  });
-}
-
-(async () => {
-  await OnUiUpdate();
-  createUIFilter();
-})();
-
-
-
