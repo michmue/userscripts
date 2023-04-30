@@ -18,7 +18,7 @@ if (!currentScript) {
         .then(resp => {
             currentScript = resp.text;
             eval(currentScript);
-        })
+        });
 }
 
 
@@ -31,11 +31,11 @@ function reloadOnScriptChance() {
                 currentScript = resp.text;
 
                 let isUneqal = currentScript !== previousScript;
-                console.log(`isUnqeal: ${isUneqal}`)
+                console.log(`isUnqeal: ${isUneqal}`);
                 if (isUneqal) {
                     location.reload();
                 }
-            })
+            });
     }
 }
 
