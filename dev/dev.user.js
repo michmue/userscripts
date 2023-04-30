@@ -6,6 +6,40 @@
 // ==/UserScript==
 
 
-let url = `http://localhost:8080/AOK Filter.user.js?ts=${(+new Date())}`;
-GM.fetch(url)
-    .then(resp => eval(resp.text))
+function url() {
+    return `http://localhost:8080/AOK Filter.user.js?ts=${(+new Date())}`;
+}
+
+let currentScript = "";
+let previousScript = "";
+
+if (!currentScript) {
+    GM.fetch(url())
+        .then(resp => {
+            currentScript = resp.text;
+            eval(currentScript);
+        })
+}
+
+
+function reloadOnScriptChance() {
+    if (currentScript) {
+        previousScript = currentScript;
+
+        GM.fetch(url())
+            .then(resp => {
+                currentScript = resp.text;
+
+                let isUneqal = currentScript !== previousScript;
+                console.log(`isUnqeal: ${isUneqal}`)
+                if (isUneqal) {
+                    location.reload();
+                }
+            })
+    }
+}
+
+
+addEventListener('focus', () => {
+    reloadOnScriptChance();
+});
