@@ -1,82 +1,34 @@
-export async function element(selector:string) {
+export function sleep(ms:number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function event(event: string, selector: string) {
+    let e = document.querySelector(selector);
+    let events = undefined;
+    while (events === undefined) {
+        await sleep(1);
+        // @ts-ignore
+        events = unsafeWindow['$']._data(e).events
+    }
+
+    return events[event] !== undefined
+}
+
+export async function element(selector: string, target = document.documentElement) {
+    let e = document.querySelector(selector);
+    if (e)
+        return e as HTMLElement;
+
     return new Promise<HTMLElement>(resolve => {
-        let intervalId = setInterval(() => {
-            console.debug(`waiting: ${selector}`);
-            let ele = document.querySelector(selector) as HTMLElement;
-            if (ele) {
-                clearInterval(intervalId);
-                resolve(ele);
+        new MutationObserver((mutations, observer) => {
+            let e = document.querySelector(selector);
+            if (e) {
+                resolve(e as HTMLElement);
+                observer.disconnect()
             }
-        }, 200);
+        }).observe(target, {
+            childList: true,
+            subtree: true
+        })
     });
 }
-
-
-export class DOM {
-    static async element2(selector:string , path:string) {
-        return new Promise(resolve => {
-            let intervalId = setInterval(() => {
-                let ele = document.querySelector(selector);
-                if (location.href.includes(path) && ele) {
-                    clearInterval(intervalId);
-                    resolve(ele);
-                }
-            }, 200);
-        });
-    }
-
-    /**
-     *
-     * @returns {Promise<HTMLElement>}
-     */
-    static async element() {
-
-    }
-
-
-    /**
-     *
-     * @returns {Promise<HTMLElement>}
-     */
-    static async location(page: string) {
-
-    }
-
-    /**
-     *
-     * @returns {Promise<HTMLElement>}
-     */
-    static async OnPage(page: string) {
-        // await location(page);
-
-    }
-
-    static async domainController() {
-        let MAIN_DOMAIN = window.top === window.self;
-        if (MAIN_DOMAIN) {
-            // main();
-        } else {
-            // await mainSubDomain();
-        }
-    }
-
-    static async main() {
-        while (true) {
-            // await this.OnPage(PLAYER_PAGE);
-            // let p = await element('player');
-            // p.click();
-            //
-            // let settings = await element('settings');
-            // settings.click();
-        }
-    }
-
-    static async mainSubDomain() {
-        // let m4 = await element('.m4');
-        // let p360 = m4.querySelector('div:last-child');
-        // p360.click();
-    }
-}
-
-// $ = document.querySelector;
-// $$ = document.querySelectorAll;

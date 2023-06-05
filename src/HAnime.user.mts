@@ -11,7 +11,8 @@
 // ==/UserScript==
 
 import {SPA} from "./core/spa.mjs";
-import {element} from "./core/dom.mjs";
+import {element, sleep} from "./core/dom.mjs";
+
 
 const PAGES = {
     'INDEX': 'https://hanime.tv/',
@@ -20,15 +21,13 @@ const PAGES = {
 
 let spa = new SPA(PAGES);
 
+
 async function onPlayerDomain() {
     let setting = await element('button.vjs-control.vjs-button.vjs-icon-cog');
     await sleep(500);
     setting.click();
 }
 
-function sleep(ms:number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 async function onTopDomain() {
     while (true) {

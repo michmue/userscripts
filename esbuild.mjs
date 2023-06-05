@@ -13,8 +13,8 @@ let ctx = await esbuild.context({
     entryPoints: entryPoints,
     outdir: 'dist',
     bundle:true,
-    format: 'cjs',
-    sourcemap: true,
+    format: 'esm',
+    sourcemap: "both",
     target: "es2021",
     // sourceRoot: "http://localhost:8000/"
     // outfile: 'out.js',
