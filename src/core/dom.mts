@@ -32,3 +32,58 @@ export async function element(selector: string, target = document.documentElemen
         })
     });
 }
+
+let html = `
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<div>
+    <div>
+        <div>
+            <div></div>
+        </div>
+    </div>
+</div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</body>
+</html>
+`;
+
+
+function findAllNodesAtCurrentLevel(level: HTMLElement) {
+    let map = new Map<string, ChildNode[]>;
+    for (let childNode of level.childNodes) {
+        let key = childNode.nodeName;
+        if (map.has(key)) {
+            let arr = map.get(key)!;
+            arr.push(childNode);
+        } else {
+            map.set(key, [childNode]);
+        }
+    }
+
+    return map;
+}
+
+function iterNextLevel(currLevel: HTMLElement) {
+    for (const nextLevel of currLevel.childNodes) {
+        findAllNodesAtCurrentLevel(nextLevel)
+    }
+}
+
+function iterDocument() {
+    let level = document.documentElement;
+    iterNextLevel(level);
+}
+
+console.log(findAllNodesAtCurrentLevel(level));
