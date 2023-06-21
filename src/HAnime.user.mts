@@ -12,7 +12,6 @@
 
 import {SPA} from "./core/spa.mjs";
 import {element, sleep} from "./core/dom.mjs";
-import {debug} from "util";
 
 
 const PAGES = {
@@ -26,9 +25,44 @@ let spa = new SPA(PAGES);
 
 
 async function onPlayerDomain() {
-    let setting = await element('button.vjs-control.vjs-button.vjs-icon-cog');
-    await sleep(500);
+    let playIcon = await element('.op-poster.pointer');
+    playIcon.click();
+    console.debug(`${"playIcon.click()"}`);
+
+
+    let setting = await element('.vjs-control.vjs-button.vjs-icon-cog');
+    console.log(`setting clicked`);
     setting.click();
+    //
+    // // @ts-ignore
+    // let app_el = Array.from(unsafeWindow.document.querySelector('*')).find(e => e.__vue__)!;
+    // console.debug(`clicked: vue play?`);
+    // console.debug(`${app_el}`);
+    // // @ts-ignore
+    // await sleep(2000);
+    // // @ts-ignore
+    // app_el.__vue__.$el.__vue__.player.children_[7].children_[0].click();
+
+    // let vueCtrl = undefined;
+    // while (vueCtrl === undefined) {
+    //     await sleep(100);
+    //     try {
+    //         console.log("trying");
+    //         // @ts-ignore
+    //         vueCtrl = videoPlayerVue.__vue__.$el.__vue__.player.children_[7].children_[0].el_
+    //     } catch (e) {
+    //
+    //     }
+    // }
+    // console.log("found");
+    
+    // console.debug(setting);
+    //
+    // setting.click();
+
+    // // await sleep(500);
+    // setting.click();
+    // console.debug("play clicked");
 }
 
 
@@ -61,32 +95,12 @@ const playIcon : string = '.hvp-panel.flex.align-center.justify-center.pointer.h
 
 async function main() {
     spa = new SPA(PAGES);
-    let res1: (value: unknown) => void;
-    let rej1: (reason?: any) => void;
 
-    let promise = new Promise((resolve, reject) => {
-        res1 = resolve;
-        rej1 = reject;
-    }).catch(reason => {
-        console.debug(`${reason}`);
-    });
-
-
-    new Promise(resolve => {
-        setTimeout(() => {
-            resolve('rejected rej1');
-            rej1('outside');
-        }, 2000);
-    }).then(value => console.debug(`${value}`));
-
-
-    // Promise.resolve(promise).then(value => console.debug(`${value.classList}`));
-
-    // if (window.top === window.self) {
-    //     onTopDomain();
-    // } else {
-    //     onPlayerDomain();
-    // }
+    if (window.top === window.self) {
+        onTopDomain();
+    } else {
+        onPlayerDomain();
+    }
 }
 
 main();
