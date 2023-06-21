@@ -14,17 +14,26 @@ export async function event(event: string, selector: string) {
     return events[event] !== undefined
 }
 
-export async function element(selector: string, target = document.documentElement) {
-    let e = document.querySelector(selector);
-    if (e)
-        return e as HTMLElement;
+export declare type RejectCondition = () => boolean;
 
-    return new Promise<HTMLElement>(resolve => {
+export async function element(selector: string, target = document.documentElement, rejectCondition: RejectCondition = () => {return false}) {
+    let e = document.querySelector(selector);
+    if (e) {
+        return e as HTMLElement;
+    }
+
+    return new Promise<HTMLElement>((resolve, reject) => {
         new MutationObserver((mutations, observer) => {
             let e = document.querySelector(selector);
             if (e) {
                 resolve(e as HTMLElement);
                 observer.disconnect()
+            }
+
+            if (rejectCondition()) {
+                console.debug(`rejected ${selector}`);
+                reject();
+                observer.disconnect();
             }
         }).observe(target, {
             childList: true,
