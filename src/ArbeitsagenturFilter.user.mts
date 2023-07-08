@@ -7,6 +7,8 @@
 // @run-at document-end
 // ==/UserScript==
 
+import "./core/extensions.mjs";
+
 class Job {
     Hauptberuf = "";
     Titel = "";
@@ -177,6 +179,58 @@ function createUIFavCounter() {
     }
 }
 
+function filterJobs(excludes: HTMLInputElement, includes:HTMLInputElement){
+    let jobs = ([...document.querySelectorAll("jb-job-listen-eintrag")] as HTMLElement[]);
+
+    let containsExcludes = excludes.value
+        .replace(', ',',')
+        .replace(' ,',',')
+        .toLowerCase()
+        .split(",");
+
+    if (containsExcludes[0] === "") containsExcludes.pop();
+
+    let containsIncludes = includes.value
+        .replace(', ',',')
+        .replace(' ,',',')
+        .toLowerCase()
+        .split(",");
+
+    if (containsIncludes[0] === "") containsIncludes.pop();
+
+
+    let jobss = jobs.filter(value => true);
+    if (containsExcludes.length > 0)
+        jobss = jobss.filter((j,index) => {
+            console.log("ex");
+            let jobText = j.textContent!.toLowerCase();
+            let hasTextToExclude = containsExcludes.some(word => jobText.includes(word));
+
+            if ([0,1,2,3,4].includes(index)) {
+                        console.log(`${j.querySelector('.mitte-links-titel')!.textContent} filter: ${!hasTextToExclude}`);
+                console.log(containsExcludes);
+            }
+
+            return !hasTextToExclude
+        });
+
+    if (containsIncludes.length > 0)
+        jobss = jobss.filter(j => {
+            console.log("inc");
+            let jobText = j.textContent!.toLowerCase();
+            let hasTextToInclude = containsIncludes.some(word => jobText.includes(word));
+            return hasTextToInclude
+        });
+
+    if (containsIncludes.length > 0 || containsExcludes.length > 0) {
+        console.log(jobss);
+        jobss.forEach(j => j.hidden = false);
+        Array.diffLeft(jobs, jobss).forEach(j => j.hidden = true);
+    } else {
+        jobs.forEach(j => j.hidden = false);
+    }
+}
+
 function createUIFavFilter() {
     let c = document.querySelector(".container-fluid")!;
     let ro = c.childNodes[4];
@@ -193,6 +247,8 @@ function createUIFavFilter() {
     let textFilter = document.createElement("Input") as HTMLInputElement;
     textFilter.placeholder = "Text Filter";
 
+    let textInclude = document.createElement("Input") as HTMLInputElement;
+    textInclude.placeholder = "Text Eingrenzen";
 
     btnToggleFav.textContent = "Favoriten umschalten";
     btnMarkKnown.textContent = "Bekannte hervorheben";
@@ -205,7 +261,9 @@ function createUIFavFilter() {
     favFilter.appendChild(btnToggleKnown);
     favFilter.appendChild(btnExportVisible);
     favFilter.appendChild(ipText);
+    favFilter.appendChild(document.createElement("br"));
     favFilter.appendChild(textFilter);
+    favFilter.appendChild(textInclude);
 
 
     btnToggleFav.onclick = () => {
@@ -218,19 +276,8 @@ function createUIFavFilter() {
         }
     };
 
-    textFilter.onchange = ev => {
-        let textContent = (ev.target as HTMLInputElement).value.split(",");
-        ([...document.querySelectorAll("jb-job-listen-eintrag")] as HTMLElement[]).forEach(job => {
-            let shouldHide = false;
-            if (!(textContent[0] === ""))
-                textContent.forEach(value => {
-                    if (job.textContent!.toLowerCase().includes(value.toLowerCase())) {
-                        shouldHide = true;
-                    }
-                });
-            job.hidden = shouldHide;
-        })
-    };
+    textFilter.onchange = ev => filterJobs(textFilter, textInclude);
+    textInclude.onchange = ev => filterJobs(textFilter, textInclude);
 
     btnMarkKnown.onclick = () => {
         let jobs = getDataByFilter(() => true);
@@ -271,7 +318,6 @@ function createUIFavFilter() {
     };
 
     c.insertBefore(favFilter, ro);
-
 }
 
 function getDataByFilter(filter: (x: any) => boolean): Job[] {
