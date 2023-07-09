@@ -1,30 +1,34 @@
 export class SPA {
-    private PAGES;
+    // private PAGES;
+    private static loc: string;
 
-
-    constructor(PAGES: any) {
-        this.PAGES = PAGES;
+    static {
+        SPA.listenAndEmmitLocation();
     }
 
-    async onLocation(page:string) {
-        return new Promise<void>(resolve => {
-            let locationChecker = setInterval(() => {
-                console.log(`waiting: ${page}`);
-                if (page === this.PAGES.INDEX
-                    && location.href === page) {
+    constructor(/*PAGES: any*/) {
+        // this.PAGES = PAGES;
+    }
 
-                    clearInterval(locationChecker);
-                    resolve();
-
-                } else if (page !== this.PAGES.INDEX
-                    && location.href.includes(page)) {
-
-                    clearInterval(locationChecker);
-                    resolve();
-                }
-            }, 200);
-        });
-    };
+    // async onLocation(page:string) {
+    //     return new Promise<void>(resolve => {
+    //         let locationChecker = setInterval(() => {
+    //             console.log(`waiting: ${page}`);
+    //             if (page === this.PAGES.INDEX
+    //                 && location.href === page) {
+    //
+    //                 clearInterval(locationChecker);
+    //                 resolve();
+    //
+    //             } else if (page !== this.PAGES.INDEX
+    //                 && location.href.includes(page)) {
+    //
+    //                 clearInterval(locationChecker);
+    //                 resolve();
+    //             }
+    //         }, 200);
+    //     });
+    // };
 
     async locationChange() {
         let loc = location.href;
@@ -38,4 +42,31 @@ export class SPA {
             }, 200);
         });
     }
+
+    static listenAndEmmitLocation() {
+        new MutationObserver((mutations, observer) => {
+            if (SPA.loc !== location.href) {
+                SPA.loc = location.href;
+                self.dispatchEvent(new CustomEvent<{
+                    href: string
+                }>('onLocationChance', {
+                    detail: {href: SPA.loc}
+                }))
+            }
+        }).observe(document.body, {
+            childList: true,
+            subtree: true
+        })
+    }
+
+    async onLocationChance(): Promise<string> {
+        return new Promise<string>(resolve => {
+            self.addEventListener('onLocationChance', e => {
+                let e1 = e as CustomEvent;
+                resolve(e1.detail.href);
+            }, {once: true});
+        });
+    }
+
+
 }
