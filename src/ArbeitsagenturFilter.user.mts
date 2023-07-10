@@ -29,5 +29,7 @@ async function main() {
         if (path.includes(JOB_LISTINGS)) {
             AgenturController.renderJobListings();
         }
+
+        AgenturController.loadAllPages()
     }
 }

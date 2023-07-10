@@ -3,8 +3,25 @@ import {Job} from "./models.mjs";
 import "../core/extensions.mjs";
 import {JobListingView} from "./JobListingView.mjs";
 import {FavoriteView} from "./FavoriteView.mjs";
+import {element} from "../core/dom.mjs";
 
 export class AgenturController {
+
+    static async loadAllPages() {
+        await element("#ergebnisliste-ladeweitere-button");
+        let inter = setInterval(() => {
+            let b = document.querySelector("#ergebnisliste-ladeweitere-button") as HTMLElement;
+            if (b) {
+                b.click();
+            } else {
+                console.log("clear loadAllPages");
+                clearInterval(inter);
+            }
+        }, 100);
+
+    }
+
+
     static getAllJobs(): Job[] {
         return ([...document.querySelectorAll("jb-job-listen-eintrag")] as HTMLElement[])
             .map(j => {
