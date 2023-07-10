@@ -11,7 +11,7 @@
 import {AgenturController} from "./arbeitsagentur/controller.mjs";
 import {SPA} from "./core/spa.mjs";
 
-const FAVORITES = "/profil/vormerkungen?";
+const FAVORITES = "/profil/vormerkungen";
 const JOB_LISTINGS = "/jobsuche/suche";
 
 let spa = new SPA();
@@ -20,13 +20,13 @@ main();
 
 async function main() {
     while (true) {
-        let href = await spa.onLocationChance();
+        let path = await spa.onLocationChance();
 
-        if (href.includes(FAVORITES)) {
+        if (path.includes(FAVORITES)) {
             AgenturController.renderFavorites()
         }
 
-        if (href.includes(JOB_LISTINGS)) {
+        if (path.includes(JOB_LISTINGS)) {
             AgenturController.renderJobListings();
         }
     }

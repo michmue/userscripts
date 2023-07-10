@@ -45,12 +45,12 @@ export class SPA {
 
     static listenAndEmmitLocation() {
         new MutationObserver((mutations, observer) => {
-            if (SPA.loc !== location.href) {
-                SPA.loc = location.href;
+            if (SPA.loc !== location.pathname) {
+                SPA.loc = location.pathname;
                 self.dispatchEvent(new CustomEvent<{
-                    href: string
+                    path: string
                 }>('onLocationChance', {
-                    detail: {href: SPA.loc}
+                    detail: {path: SPA.loc}
                 }))
             }
         }).observe(document.body, {
@@ -63,7 +63,8 @@ export class SPA {
         return new Promise<string>(resolve => {
             self.addEventListener('onLocationChance', e => {
                 let e1 = e as CustomEvent;
-                resolve(e1.detail.href);
+                console.log(e1.detail.path);
+                resolve(e1.detail.path);
             }, {once: true});
         });
     }
