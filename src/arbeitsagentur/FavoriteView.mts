@@ -1,4 +1,5 @@
 import {element} from "../core/dom.mjs";
+import {Job} from "./models.mjs";
 
 export module FavoriteView {
     export function renderView() {
@@ -12,26 +13,11 @@ export module FavoriteView {
 
         let notAvailable = ([...document.querySelectorAll("jb-job-listen-eintrag")] as HTMLElement[])
             .filter(x => x.textContent!.includes("Stelle nicht mehr"))
-            .map(x => ({
-                "Hauptberuf": x.querySelector(".oben")!.textContent,
-                "Titel": x.querySelector("span.mitte-links-titel")!.textContent!.trimEnd(),
-                "Arbeitgeber": x.querySelector(".mitte-links-arbeitgeber")!.textContent!.trimStart().trimEnd(),
-                "Ort": x.querySelector(".mitte-links-ort")!.textContent!.trimStart().trimEnd().replace(/\(.*/g, ""),
-                "Veroeffentlichung": x.querySelector(".unten-datum")!.textContent!.trimStart().trimEnd(),
-                "Extern": x.querySelector(".mitte-rechts")!.querySelector("span") !== null,
-            }));
+            .map(x => Job.fromHTMLElement(x));
 
         let available = ([...document.querySelectorAll("jb-job-listen-eintrag")] as HTMLElement[])
             .filter(x => !x.textContent!.includes("Stelle nicht mehr"))
-            .map(x => ({
-                "Hauptberuf": x.querySelector(".oben")!.textContent,
-                "Titel": x.querySelector("span.mitte-links-titel")!.textContent!.trimEnd(),
-                "Arbeitgeber": x.querySelector(".mitte-links-arbeitgeber")!.textContent!.trimStart().trimEnd(),
-                "Ort": x.querySelector(".mitte-links-ort")!.textContent!.trimStart().trimEnd().replace(/\(.*/g, ""),
-                "Veroeffentlichung": x.querySelector(".unten-datum")!.textContent!.trimStart().trimEnd(),
-                "URL": x.querySelector("a")!.href,
-                "Extern": x.querySelector(".mitte-rechts")!.querySelector("span") !== null,
-            }));
+            .map(x => Job.fromHTMLElement(x));
 
 
         favCounter.innerHTML = `

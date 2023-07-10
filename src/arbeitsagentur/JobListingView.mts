@@ -119,7 +119,7 @@ function createBtnMarkKnown(ipText: HTMLInputElement): HTMLButtonElement {
 
                 for (let k = 0; k < jobsFav.length; k++) {
                     const jobFav = jobsFav[k];
-                    if (Job.equals(job, kj) && !Job.equals(Job.FromHTMLElement(jobFav), kj)) {
+                    if (Job.equals(job, kj) && !Job.equals(Job.fromHTMLElement(jobFav), kj)) {
                         jobsHtml.at(i)!.style.backgroundColor = "grey";
                     }
                 }
@@ -136,26 +136,11 @@ export function createUIFavCounter() {
 
     let notAvailable = ([...document.querySelectorAll("jb-job-listen-eintrag")] as HTMLElement[])
         .filter(x => x.textContent!.includes("Stelle nicht mehr"))
-        .map(x => ({
-            "Hauptberuf": x.querySelector(".oben")!.textContent,
-            "Titel": x.querySelector("span.mitte-links-titel")!.textContent!.trimEnd(),
-            "Arbeitgeber": x.querySelector(".mitte-links-arbeitgeber")!.textContent!.trimStart().trimEnd(),
-            "Ort": x.querySelector(".mitte-links-ort")!.textContent!.trimStart().trimEnd().replace(/\(.*/g, ""),
-            "Veroeffentlichung": x.querySelector(".unten-datum")!.textContent!.trimStart().trimEnd(),
-            "Extern": x.querySelector(".mitte-rechts")!.querySelector("span") !== null,
-        }));
+        .map(x => Job.fromFavoriteHTMLElement(x));
 
     let available = ([...document.querySelectorAll("jb-job-listen-eintrag")] as HTMLElement[])
         .filter(x => !x.textContent!.includes("Stelle nicht mehr"))
-        .map(x => ({
-            "Hauptberuf": x.querySelector(".oben")!.textContent,
-            "Titel": x.querySelector("span.mitte-links-titel")!.textContent!.trimEnd(),
-            "Arbeitgeber": x.querySelector(".mitte-links-arbeitgeber")!.textContent!.trimStart().trimEnd(),
-            "Ort": x.querySelector(".mitte-links-ort")!.textContent!.trimStart().trimEnd().replace(/\(.*/g, ""),
-            "Veroeffentlichung": x.querySelector(".unten-datum")!.textContent!.trimStart().trimEnd(),
-            "URL": x.querySelector("a")!.href,
-            "Extern": x.querySelector(".mitte-rechts")!.querySelector("span") !== null,
-        }));
+        .map(x => Job.fromFavoriteHTMLElement(x));
 
 
     favCounter.innerHTML = `

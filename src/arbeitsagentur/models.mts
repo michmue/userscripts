@@ -17,7 +17,7 @@ export class Job {
         Ort: string,
         Veroeffentlichung: string,
         Extern: boolean | null,
-        URL: string
+        URL: string,
     }): Job {
         let job = new Job();
         job.Hauptberuf = obj.Hauptberuf;
@@ -32,16 +32,25 @@ export class Job {
         return job;
     }
 
-    static FromHTMLElement(htmlEle: HTMLElement): Job {
+    static fromHTMLElement(htmlEle: HTMLElement): Job {
+        let job = Job.fromFavoriteHTMLElement(htmlEle);
+        job.Entfernung = htmlEle.querySelector(".mitte-links-ort")!.textContent!.match(/\d+/)![0];
+        job.URL = htmlEle.querySelector("a")!.href!;
+        return job;
+    }
+    static fromFavoriteHTMLElement(htmlEle: HTMLElement): Job {
         let job = new Job();
+
         job.Hauptberuf = htmlEle.querySelector(".oben")!.textContent!;
         job.Titel = htmlEle.querySelector("span.mitte-links-titel")!.textContent!.trimEnd();
         job.Arbeitgeber = htmlEle.querySelector(".mitte-links-arbeitgeber")!.textContent!.trimStart().trimEnd();
-        job.Entfernung = htmlEle.querySelector(".mitte-links-ort")!.textContent!.match(/\d+/)![0];
         job.Ort = htmlEle.querySelector(".mitte-links-ort")!.textContent!.trimStart().trimEnd().replace(/\(.*/g, "");
         job.Veroeffentlichung = htmlEle.querySelector(".unten-datum")!.textContent!.trimStart().trimEnd();
-        job.URL = htmlEle.querySelector("a")!.href!;
         job.Extern = htmlEle.querySelector(".mitte-rechts")!.querySelector("span") !== null;
+        job.Hidden = htmlEle.hidden;
+        job.Entfernung = "-1";
+        job.URL = "";
+
         return job;
     }
 
@@ -49,7 +58,7 @@ export class Job {
         let jobs: Job[] = [];
 
         htmlEles.forEach(htmlEle => {
-            let job = Job.FromHTMLElement(htmlEle);
+            let job = Job.fromHTMLElement(htmlEle);
             jobs.push(job);
         });
         return jobs;
