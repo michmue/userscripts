@@ -14,12 +14,11 @@ import {SPA} from "./core/spa.mjs";
 import {element, sleep} from "./core/dom.mjs";
 
 
-const PAGES = {
-    'INDEX': 'https://hanime.tv/',
-    'PLAYER': 'https://hanime.tv/videos/hentai/'
-};
-
-let spa = new SPA(PAGES);
+SPA.onLocationChance(url => {
+    let isTopDomain = window.top === window.self;
+    if (isTopDomain) onTopDomain();
+    if (!isTopDomain) onPlayerDomain();
+});
 
 
 async function onPlayerDomain() {
@@ -30,8 +29,6 @@ async function onPlayerDomain() {
 
 
 async function onTopDomain() {
-    while (true) {
-        await spa.onLocation(PAGES.PLAYER);
         await sleep(500);
         let player = await element('div.player.flex > div > div');
         player.click();
@@ -39,19 +36,4 @@ async function onTopDomain() {
         let p360 = await element('div.htvssd-server.mt-4 > div:last-child');
         p360.click();
         player.click();
-        console.debug("await location change");
-        await spa.locationChange();
-        console.debug("location changed");
-    }
 }
-async function main() {
-    spa = new SPA(PAGES);
-
-    if (window.top === window.self) {
-        onTopDomain();
-    } else {
-        onPlayerDomain();
-    }
-}
-
-main();

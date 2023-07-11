@@ -14,22 +14,14 @@ import {SPA} from "./core/spa.mjs";
 const FAVORITES = "/profil/vormerkungen";
 const JOB_LISTINGS = "/jobsuche/suche";
 
-let spa = new SPA();
-
-main();
-
-async function main() {
-    while (true) {
-        let path = await spa.onLocationChance();
-
-        if (path.includes(FAVORITES)) {
+SPA.onLocationChance(url => {
+    if (url.includes(FAVORITES)) {
             AgenturController.renderFavorites()
         }
 
-        if (path.includes(JOB_LISTINGS)) {
+        if (url.includes(JOB_LISTINGS)) {
             AgenturController.renderJobListings();
         }
 
         AgenturController.loadAllPages()
-    }
-}
+});

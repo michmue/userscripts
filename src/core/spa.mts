@@ -10,25 +10,6 @@ export class SPA {
         // this.PAGES = PAGES;
     }
 
-    // async onLocation(page:string) {
-    //     return new Promise<void>(resolve => {
-    //         let locationChecker = setInterval(() => {
-    //             console.log(`waiting: ${page}`);
-    //             if (page === this.PAGES.INDEX
-    //                 && location.href === page) {
-    //
-    //                 clearInterval(locationChecker);
-    //                 resolve();
-    //
-    //             } else if (page !== this.PAGES.INDEX
-    //                 && location.href.includes(page)) {
-    //
-    //                 clearInterval(locationChecker);
-    //                 resolve();
-    //             }
-    //         }, 200);
-    //     });
-    // };
 
     async locationChange() {
         let loc = location.href;
@@ -42,6 +23,7 @@ export class SPA {
             }, 200);
         });
     }
+
 
     static listenAndEmmitLocation() {
         new MutationObserver((mutations, observer) => {
@@ -59,15 +41,10 @@ export class SPA {
         })
     }
 
-    async onLocationChance(): Promise<string> {
-        return new Promise<string>(resolve => {
-            self.addEventListener('onLocationChance', e => {
-                let e1 = e as CustomEvent;
-                console.log(e1.detail.path);
-                resolve(e1.detail.path);
-            }, {once: true});
+
+    static onLocationChance(callback: ((url:string) => void)){
+        self.addEventListener('onLocationChance', e => {
+            callback((e as CustomEvent).detail.path);
         });
     }
-
-
 }
