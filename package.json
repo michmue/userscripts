@@ -4,8 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "dev": "http-server src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "serve": "node esbuild.mjs"
   },
   "author": "",
   "license": "ISC",
